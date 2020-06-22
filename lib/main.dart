@@ -5,10 +5,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:gradient_app_bar/gradient_app_bar.dart';
+// import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:kiatsu/model/weather_model.dart';
 import 'package:kiatsu/settingPage.dart';
+import 'package:neumorphic/neumorphic.dart';
 import 'package:share/share.dart';
 import 'package:weather/weather_library.dart';
 import 'const/constant.dart' as Constant;
@@ -21,8 +22,10 @@ void main() {
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
   // runeZonedGuardedに包むことによってFlutter起動中のエラーを非同期的に全部拾ってくれる(らしい)
   runZonedGuarded(() async {
-      runApp(MyApp(
-          ));
+      runApp(NeuApp(
+        home: MyApp(
+            ),
+      ));
     }, (e, s) => Crashlytics.instance.recordError(e, s));
   }
 class MyApp extends StatefulWidget {
@@ -85,27 +88,6 @@ class _MyAppState extends State<MyApp> {
     return WeatherClass.fromJson(json.decode(response.body));
   }
 
-  // Future _remoteConfig() async {
-  //   RemoteConfig remoteConfig = await RemoteConfig.instance;
-  //   await remoteConfig.fetch(expiration: const Duration(minutes: 60));
-  //   await remoteConfig.activateFetched();
-  //   String secret = remoteConfig.getString('weather_api_key');
-  //   return secret;
-  // }
-
-  // RemoteConfig用のgetWeather
-  // Future<WeatherClass> getWeather() async {
-  //   var result = remoteConfig.getString('weather_api_key');
-  //   Position position = await Geolocator()
-  //       .getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
-  //   String url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-  //       position.latitude.toString() +
-  //       '&lon=' +
-  //       position.longitude.toString() +
-  //       '&APPID=$result';
-  //   final response = await http.get(url);
-  //   return WeatherClass.fromJson(json.decode(response.body));
-  // }
 
   // Future で 5日分の天気取得
  Future<void> queryForecast() async {
@@ -120,35 +102,8 @@ class _MyAppState extends State<MyApp> {
    });
  }
 
-//  void queryWeather() async {
-////    Weather w = await ws.currentWeather(latitude, longitude);
-//    Weather w = (await getWeather()) as Weather;
-//    setState(() {
-//      _res = w.toString();
-//      print('weather api test*****************************');
-//      print(_res);
-//    });
-//  }
 
-//  void queryBarometer() async {
-//    Weather w2 = await ws.currentWeather(latitude, longtitude);
-//    double pressure = w2.pressure.toDouble();
-//    setState(() {
-//      _res2 = w2.toString();
-//      res_p = pressure.toInt();
-//      print('pressure *****************');
-//      print(w2);
-//      print('pressure *****************');
-//      print(pressure);
-//    });
-//  }
-  // void _getchuWeather() async {
-  //   WeatherClass bitch = await getWeather();
-  //   setState(() {
-  //     weather = bitch;
-  //   });
 
-  // }
     // ListView 更新
     Future<void> _refresher() async {
       setState(() {
@@ -159,18 +114,7 @@ class _MyAppState extends State<MyApp> {
         // queryForecast();
       });
     }
-    // Future _showPieng() async {
-    //   setState(() {
-    //     var result = getWeather();
-
-    //   });
-    // }
-
-    // _showWiredash() {
-    //   setState(() {
-    //     Wiredash.of(context).show();
-    //   });
-    // }
+    
 
   @override
   Widget build(BuildContext context) {
@@ -182,25 +126,11 @@ class _MyAppState extends State<MyApp> {
         },
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          appBar: GradientAppBar(
-            gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [const Color(0xFFc423ba), const Color(0xFF00d5bf)],
-                tileMode: TileMode.repeated),
-            centerTitle: true,
-            title: const Text(
-              "THE KIATSU",
+          appBar: NeuAppBar(
+              title: const NeuText(
+                "THE KIATSU",
+              ),
             ),
-            actions: <Widget>[
-              /** Builder がないと「Navigatorを含むコンテクストが必要」って怒られる */
-              Builder(
-                builder: (context) => IconButton(icon: const Icon(Icons.settings), onPressed: () {
-                  Navigator.of(context).pushNamed( '/a');
-                }),
-              )
-            ],
-          ),
           body: FutureBuilder<WeatherClass>(
               future: getWeather(),
               builder: (context, snapshot) {
@@ -212,17 +142,6 @@ class _MyAppState extends State<MyApp> {
                 if (snapshot.hasError) print(snapshot.error);
                 if (snapshot.hasData) {
                   return Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              const Color(0xFFc423ba),
-                              const Color(0xFF00d5bf)
-                            ],
-                            tileMode: TileMode.repeated)),
-                    // color: Colors.black,
-                    key: GlobalKey(),
                     child: RefreshIndicator(
                       onRefresh: () {
                         return _refresher();
@@ -234,7 +153,7 @@ class _MyAppState extends State<MyApp> {
                             child: Container(
                               padding: EdgeInsets.all(10.0),
                               margin: EdgeInsets.all(10.0),
-                              child: const Text(
+                              child: const NeuText(
                                 '---pressure status---',
                                 style: TextStyle(
                                     color: Colors.white,
@@ -255,7 +174,7 @@ class _MyAppState extends State<MyApp> {
                               child: Card(
                                 color: Colors.transparent,
                                 elevation: 5,
-                                child: Text(
+                                child: NeuText(
                                   snapshot.data.main.pressure.toString() + ' hPa',
                                   style: TextStyle(
                                       color: Colors.white,
@@ -268,7 +187,7 @@ class _MyAppState extends State<MyApp> {
                           Container(
                             height: 100,
                             alignment: Alignment.center,
-                            child: Text('test'),
+                            child: NeuText('test'),
                           ),
                           Container(
                             // constraints: BoxConstraints.expand(),
@@ -277,27 +196,27 @@ class _MyAppState extends State<MyApp> {
                             alignment: Alignment.center,
                             child:
                             snapshot.data.weather[0].main == 'clouds' ?
-                            Text('Cloudy',
+                            NeuText('Cloudy',
                             style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.w100,
                                   fontSize: 70.0),)
                             : snapshot.data.weather[0].main.toString() == 'Clear Sky' ?
-                            Text('Sunny',
+                            NeuText('Sunny',
                             style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.w100,
                                   fontSize: 70.0),)
                             : snapshot.data.weather[0].main.toString() == 'Rain' ?
-                            Text('Rainy',
+                            NeuText('Rainy',
                             style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.w100,
                                   fontSize: 70.0),)
                             
-                             : Text(snapshot.data.weather[0].main.toString(),
+                             : NeuText(snapshot.data.weather[0].main.toString(),
                              style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.w100,
                                   fontSize: 30,
                                   ),),
@@ -308,7 +227,7 @@ class _MyAppState extends State<MyApp> {
 
                             child:
                             snapshot.data.main.pressure < 1008 ? 
-                            Text('今日は地獄です',
+                            NeuText('今日は地獄です',
 
 
 
@@ -318,7 +237,7 @@ class _MyAppState extends State<MyApp> {
                                   fontSize: 18.0),
                             )
                             : Center(child: Text('今日は天国です',style: TextStyle(
-                              color: Colors.yellow,
+                              color: Colors.black,
                             ),)),
                           ),
                           SizedBox(
@@ -335,12 +254,12 @@ class _MyAppState extends State<MyApp> {
                             child: Text(
                               "最終更新 - " + timeago.format(updatedAt).toString(),
                               style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.w100),
                             ),
                           ),
                           Center(
-                            child: Text(
+                            child: NeuText(
                               _res2,
                               style: TextStyle(
                                   color: Colors.white,
@@ -353,16 +272,15 @@ class _MyAppState extends State<MyApp> {
                   );
                 } else {
                   return Center(
-                    child: const Text('データが存在しません'),
+                    child: const NeuText('データが存在しません'),
                   );
                 }
               }),
           floatingActionButton: FutureBuilder<WeatherClass>(
             future: getWeather(),
             builder: (context, snapshot) {
-              return FloatingActionButton(
-                  backgroundColor: Colors.pinkAccent,
-                  child: Icon(Icons.share),
+              return NeuBackButton(
+                  // child: Icon(Icons.share),
                   onPressed: () {
                     // sns share button
                     // https://qiita.com/shimopata/items/142b39bab6176b6a5da9
@@ -374,17 +292,3 @@ class _MyAppState extends State<MyApp> {
         ));
   }
 }
-
-// Future<RemoteConfig> setupRemoteConfig() async {
-//   // Yes not very useful in this case
-//   final Future<RemoteConfig> _fakeRemoteConfig = RemoteConfig.instance;
-//   final RemoteConfig remoteConfig = await RemoteConfig.instance;
-//   // Enable developer mode to relax fetch throttling
-//   remoteConfig.setConfigSettings(RemoteConfigSettings(debugMode: true));
-//   remoteConfig.setDefaults(<String, dynamic>{
-//     'weather_api_key': 'apiKey',
-//   });
-//   return remoteConfig;
-// }
-
-
